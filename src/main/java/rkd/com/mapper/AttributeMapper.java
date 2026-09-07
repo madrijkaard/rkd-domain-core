@@ -7,7 +7,7 @@ import rkd.com.request.CreateAttributeRequest;
 import rkd.com.request.UpdateAttributeRequest;
 import rkd.com.response.SearchAttributeResponse;
 
-@Mapper(componentModel = "cdi", uses = OptionMapper.class)
+@Mapper(componentModel = "jakarta-cdi", uses = OptionMapper.class)
 public interface AttributeMapper {
 
     @Mapping(target = "domain.id", source = "domainId")

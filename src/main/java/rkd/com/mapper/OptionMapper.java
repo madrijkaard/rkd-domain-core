@@ -6,7 +6,7 @@ import rkd.com.request.CreateOptionRequest;
 import rkd.com.request.UpdateOptionRequest;
 import rkd.com.response.SearchOptionResponse;
 
-@Mapper(componentModel = "cdi")
+@Mapper(componentModel = "jakarta-cdi")
 public interface OptionMapper {
 
     OptionModel toModel(CreateOptionRequest request);

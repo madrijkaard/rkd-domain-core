@@ -8,7 +8,7 @@ import rkd.com.request.UpdateDomainRequest;
 import rkd.com.response.SearchDomainResponse;
 import rkd.com.response.SearchSubdomainResponse;
 
-@Mapper(componentModel = "cdi", uses = AttributeMapper.class)
+@Mapper(componentModel = "jakarta-cdi", uses = AttributeMapper.class)
 public interface DomainMapper {
 
     @Mapping(target = "attributes", ignore = true)
