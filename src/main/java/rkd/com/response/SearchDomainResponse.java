@@ -11,8 +11,7 @@ public class SearchDomainResponse {
     private LocalDateTime updatedAt;
     private Boolean status;
     private List<SearchAttributeResponse> attributes;
-    private Long parentDomainId;
-    private List<SearchSubdomainResponse> subdomains;
+    private List<SearchSubdomainResponse> relatedDomains;
 
     public SearchDomainResponse() {
     }
@@ -30,8 +29,7 @@ public class SearchDomainResponse {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public Boolean getStatus() { return status; }
     public List<SearchAttributeResponse> getAttributes() { return attributes; }
-    public Long getParentDomainId() { return parentDomainId; }
-    public List<SearchSubdomainResponse> getSubdomains() { return subdomains; }
+    public List<SearchSubdomainResponse> getRelatedDomains() { return relatedDomains; }
     public void setId(Long id) { this.id = id; }
     public void setCode(String code) { this.code = code; }
     public void setDescription(String description) { this.description = description; }
@@ -39,6 +37,5 @@ public class SearchDomainResponse {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public void setStatus(Boolean status) { this.status = status; }
     public void setAttributes(List<SearchAttributeResponse> attributes) { this.attributes = attributes; }
-    public void setParentDomainId(Long parentDomainId) { this.parentDomainId = parentDomainId; }
-    public void setSubdomains(List<SearchSubdomainResponse> subdomains) { this.subdomains = subdomains; }
+    public void setRelatedDomains(List<SearchSubdomainResponse> relatedDomains) { this.relatedDomains = relatedDomains; }
 }

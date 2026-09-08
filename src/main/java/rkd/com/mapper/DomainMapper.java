@@ -12,18 +12,23 @@ import rkd.com.response.SearchSubdomainResponse;
 public interface DomainMapper {
 
     @Mapping(target = "attributes", ignore = true)
-    @Mapping(target = "parent.id", source = "parentDomainId")
-    @Mapping(target = "subdomains", ignore = true)
+    @Mapping(target = "relatedDomains", source = "relatedDomainIds")
     @Mapping(target = "status", ignore = true)
     DomainModel toModel(CreateDomainRequest request);
 
     @Mapping(target = "attributes", ignore = true)
-    @Mapping(target = "parent.id", source = "parentDomainId")
-    @Mapping(target = "subdomains", ignore = true)
+    @Mapping(target = "relatedDomains", source = "relatedDomainIds")
     DomainModel toModel(UpdateDomainRequest request);
 
-    @Mapping(target = "parentDomainId", source = "parent.id")
+    @Mapping(target = "relatedDomains", source = "relatedDomains")
     SearchDomainResponse toResponse(DomainModel model);
 
     SearchSubdomainResponse toSubdomainResponse(DomainModel model);
+
+    default DomainModel map(Long id) {
+        if (id == null) return null;
+        DomainModel domain = new DomainModel();
+        domain.setId(id);
+        return domain;
+    }
 }

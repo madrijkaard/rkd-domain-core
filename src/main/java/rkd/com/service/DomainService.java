@@ -6,6 +6,7 @@ import rkd.com.exception.DomainNotFoundException;
 import rkd.com.exception.InvalidActionException;
 import rkd.com.model.DomainModel;
 import rkd.com.repository.DomainRepository;
+import rkd.com.repository.AttributeRepository;
 
 import java.util.List;
 
@@ -15,9 +16,11 @@ import static rkd.com.message.DomainMessage.*;
 public class DomainService {
 
     private final DomainRepository domainRepository;
+    private final AttributeRepository attributeRepository;
 
-    public DomainService(DomainRepository domainRepository) {
+    public DomainService(DomainRepository domainRepository, AttributeRepository attributeRepository) {
         this.domainRepository = domainRepository;
+        this.attributeRepository = attributeRepository;
     }
 
     public List<DomainModel> findAll() {
@@ -38,7 +41,7 @@ public class DomainService {
 
     @Transactional
     public DomainModel create(DomainModel domain) {
-        domain.setParent(resolveParent(domain.getParent(), null));
+        domain.setRelatedDomains(resolveRelatedDomains(domain.getRelatedDomains(), null));
         domain.setStatus(true);
         domainRepository.persist(domain);
         return domain;
@@ -51,41 +54,41 @@ public class DomainService {
         domain.setCode(input.getCode());
         domain.setDescription(input.getDescription());
         domain.setStatus(input.getStatus());
-        domain.setParent(resolveParent(input.getParent(), id));
+        domain.setRelatedDomains(resolveRelatedDomains(input.getRelatedDomains(), id));
         return domain;
     }
 
-    private DomainModel resolveParent(DomainModel parent, Long currentId) {
-        if (parent == null || parent.getId() == null) {
-            return null;
+    private List<DomainModel> resolveRelatedDomains(List<DomainModel> relatedDomains, Long currentId) {
+        if (relatedDomains == null || relatedDomains.isEmpty()) {
+            return new java.util.ArrayList<>();
         }
 
-        if (currentId != null && currentId.equals(parent.getId())) {
-            throw new InvalidActionException(DOMAIN_CANNOT_BE_ITS_OWN_PARENT);
-        }
-
-        DomainModel resolved = domainRepository.findById(parent.getId());
-        if (resolved == null) {
-            throw new DomainNotFoundException(PARENT_DOMAIN_NOT_FOUND);
-        }
-
-        if (currentId != null) {
-            DomainModel ancestor = resolved;
-            while (ancestor != null) {
-                if (currentId.equals(ancestor.getId())) {
-                    throw new InvalidActionException(CYCLIC_DOMAIN);
-                }
-                ancestor = ancestor.getParent();
+        List<DomainModel> resolved = new java.util.ArrayList<>();
+        for (DomainModel related : relatedDomains) {
+            if (related == null || related.getId() == null) {
+                throw new DomainNotFoundException(RELATED_DOMAIN_NOT_FOUND);
+            }
+            if (currentId != null && currentId.equals(related.getId())) {
+                throw new InvalidActionException(DOMAIN_CANNOT_BE_RELATED_TO_ITSELF);
+            }
+            DomainModel existing = domainRepository.findById(related.getId());
+            if (existing == null) {
+                throw new DomainNotFoundException(RELATED_DOMAIN_NOT_FOUND);
+            }
+            if (resolved.stream().noneMatch(item -> item.getId().equals(existing.getId()))) {
+                resolved.add(existing);
             }
         }
-
         return resolved;
     }
 
     @Transactional
     public boolean delete(Long id) {
-        if (domainRepository.count("parent.id", id) > 0) {
-            throw new InvalidActionException(UNABLE_TO_DELETE_THE_DOMAIN);
+        if (attributeRepository.count("domain.id", id) > 0) {
+            throw new InvalidActionException(DOMAIN_HAS_ATTRIBUTES);
+        }
+        if (domainRepository.countRelations(id) > 0) {
+            throw new InvalidActionException(DOMAIN_HAS_RELATIONS);
         }
         return domainRepository.deleteById(id);
     }

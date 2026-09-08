@@ -3,6 +3,7 @@ package rkd.com.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rkd.com.exception.DomainNotFoundException;
+import rkd.com.exception.InvalidActionException;
 import rkd.com.model.AttributeModel;
 import rkd.com.model.DomainModel;
 import rkd.com.model.OptionModel;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static rkd.com.message.AttributeMessage.ATTRIBUTE_NOT_FOUND;
+import static rkd.com.message.AttributeMessage.OPTION_ATTRIBUTE_CANNOT_BE_DELETED;
 
 class AttributeServiceTest {
 
@@ -159,9 +161,26 @@ class AttributeServiceTest {
 
     @Test
     void shouldDeleteAttribute() {
+        AttributeModel attribute = new AttributeModel();
+        attribute.setType(AttributeType.TEXT);
+        when(attributeRepository.findById(1L)).thenReturn(attribute);
         when(attributeRepository.deleteById(1L)).thenReturn(true);
 
         assertEquals(true, attributeService.delete(1L));
         verify(attributeRepository).deleteById(1L);
+    }
+
+    @Test
+    void shouldNotDeleteOptionAttributeWhileOptionIsLinked() {
+        AttributeModel attribute = new AttributeModel();
+        attribute.setType(AttributeType.OPTION);
+        attribute.setOption(new OptionModel());
+        when(attributeRepository.findById(1L)).thenReturn(attribute);
+
+        InvalidActionException exception = assertThrows(InvalidActionException.class, () -> attributeService.delete(1L));
+
+        assertEquals(OPTION_ATTRIBUTE_CANNOT_BE_DELETED, exception.getMessage());
+        verify(attributeRepository).findById(1L);
+        verifyNoMoreInteractions(attributeRepository);
     }
 }

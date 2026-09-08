@@ -49,14 +49,14 @@ class DomainResourceTest {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body("""
-                        {"code":"%s","description":"Child domain","parentDomainId":%d}
+                        {"code":"%s","description":"Child domain","relatedDomainIds":[%d]}
                         """.formatted(CHILD_CODE, rootId))
                 .when()
                 .post("/domain")
                 .then()
                 .statusCode(201)
                 .contentType(ContentType.JSON)
-                .body("parentDomainId", is(rootId.intValue()))
+                .body("relatedDomains[0].id", is(rootId.intValue()))
                 .extract().jsonPath().getLong("id");
 
         given()
@@ -68,7 +68,7 @@ class DomainResourceTest {
                 .statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("id", is(childId.intValue()))
-                .body("parentDomainId", is(rootId.intValue()));
+                .body("relatedDomains[0].id", is(rootId.intValue()));
 
         given()
                 .accept(ContentType.JSON)
@@ -85,7 +85,7 @@ class DomainResourceTest {
                 .accept(ContentType.JSON)
                 .pathParam("id", childId)
                 .body("""
-                        {"code":"%s","description":"Updated child","status":false,"parentDomainId":%d}
+                        {"code":"%s","description":"Updated child","status":false,"relatedDomainIds":[%d]}
                         """.formatted(CHILD_CODE, rootId))
                 .when()
                 .put("/domain/{id}")
@@ -105,6 +105,12 @@ class DomainResourceTest {
 
         assertEquals(1L, domainRepository.count("id", childId));
         assertEquals("Updated child", domainRepository.findById(childId).getDescription());
+
+        given()
+                .contentType(ContentType.JSON)
+                .pathParam("id", childId)
+                .body("{\"code\":\"%s\",\"description\":\"Updated child\",\"status\":false,\"relatedDomainIds\":[]}".formatted(CHILD_CODE))
+                .when().put("/domain/{id}").then().statusCode(200);
 
         given().pathParam("id", childId).when().delete("/domain/{id}").then().statusCode(204);
         given().pathParam("id", rootId).when().delete("/domain/{id}").then().statusCode(204);

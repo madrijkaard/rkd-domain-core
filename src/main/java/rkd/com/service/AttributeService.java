@@ -2,7 +2,8 @@ package rkd.com.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.BadRequestException;
+import rkd.com.exception.DomainNotFoundException;
+import rkd.com.exception.InvalidActionException;
 import rkd.com.model.AttributeModel;
 import rkd.com.model.DomainModel;
 import rkd.com.model.OptionModel;
@@ -10,7 +11,6 @@ import rkd.com.repository.AttributeRepository;
 import rkd.com.repository.DomainRepository;
 import rkd.com.repository.OptionRepository;
 import rkd.com.type.AttributeType;
-import rkd.com.exception.DomainNotFoundException;
 
 import java.util.List;
 
@@ -72,12 +72,16 @@ public class AttributeService {
 
     @Transactional
     public boolean delete(Long id) {
+        AttributeModel attribute = findById(id);
+        if (attribute.getType() == AttributeType.OPTION && attribute.getOption() != null) {
+            throw new InvalidActionException(OPTION_ATTRIBUTE_CANNOT_BE_DELETED);
+        }
         return attributeRepository.deleteById(id);
     }
 
     private DomainModel resolveDomain(DomainModel domain) {
         if (domain == null || domain.getId() == null) {
-            throw new BadRequestException(INVALID_DOMAIN);
+            throw new InvalidActionException(INVALID_DOMAIN);
         }
 
         DomainModel existingDomain = domainRepository.findById(domain.getId());
@@ -93,12 +97,12 @@ public class AttributeService {
         }
 
         if (attribute.getOption() == null || attribute.getOption().getId() == null) {
-            throw new BadRequestException(INVALID_OPTION_ATTRIBUTE);
+            throw new InvalidActionException(INVALID_OPTION_ATTRIBUTE);
         }
 
         OptionModel option = optionRepository.findById(attribute.getOption().getId());
         if (option == null) {
-            throw new BadRequestException(OPTION_NOT_FOUND);
+            throw new DomainNotFoundException(OPTION_NOT_FOUND);
         }
         return option;
     }
