@@ -8,7 +8,6 @@ public class CreateAttributeRequest {
     private AttributeType type;
     private Boolean mandatory;
     private Long domainId;
-    private Long optionId;
 
     public String getCode() { return code; }
     public void setCode(String code) { this.code = code; }
@@ -20,6 +19,4 @@ public class CreateAttributeRequest {
     public void setMandatory(Boolean mandatory) { this.mandatory = mandatory; }
     public Long getDomainId() { return domainId; }
     public void setDomainId(Long domainId) { this.domainId = domainId; }
-    public Long getOptionId() { return optionId; }
-    public void setOptionId(Long optionId) { this.optionId = optionId; }
 }

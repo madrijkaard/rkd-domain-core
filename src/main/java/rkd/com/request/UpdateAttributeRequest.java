@@ -9,7 +9,6 @@ public class UpdateAttributeRequest {
     private Boolean mandatory;
     private Boolean status;
     private Long domainId;
-    private Long optionId;
 
     public String getCode() { return code; }
     public void setCode(String code) { this.code = code; }
@@ -23,6 +22,4 @@ public class UpdateAttributeRequest {
     public void setStatus(Boolean status) { this.status = status; }
     public Long getDomainId() { return domainId; }
     public void setDomainId(Long domainId) { this.domainId = domainId; }
-    public Long getOptionId() { return optionId; }
-    public void setOptionId(Long optionId) { this.optionId = optionId; }
 }

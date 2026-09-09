@@ -6,6 +6,7 @@ public class CreateOptionRequest {
     private String code;
     private String description;
     private JsonNode values;
+    private Long attributeId;
 
     public String getCode() { return code; }
     public void setCode(String code) { this.code = code; }
@@ -13,4 +14,6 @@ public class CreateOptionRequest {
     public void setDescription(String description) { this.description = description; }
     public JsonNode getValues() { return values; }
     public void setValues(JsonNode values) { this.values = values; }
+    public Long getAttributeId() { return attributeId; }
+    public void setAttributeId(Long attributeId) { this.attributeId = attributeId; }
 }

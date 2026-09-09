@@ -11,12 +11,10 @@ import rkd.com.response.SearchAttributeResponse;
 public interface AttributeMapper {
 
     @Mapping(target = "domain.id", source = "domainId")
-    @Mapping(target = "option.id", source = "optionId")
     @Mapping(target = "status", ignore = true)
     AttributeModel toModel(CreateAttributeRequest request);
 
     @Mapping(target = "domain.id", source = "domainId")
-    @Mapping(target = "option.id", source = "optionId")
     AttributeModel toModel(UpdateAttributeRequest request);
 
     @Mapping(target = "domainId", source = "domain.id")

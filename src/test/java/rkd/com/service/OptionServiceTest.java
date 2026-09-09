@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import rkd.com.exception.DomainNotFoundException;
 import rkd.com.exception.InvalidDataException;
 import rkd.com.model.OptionModel;
+import rkd.com.model.AttributeModel;
+import rkd.com.repository.AttributeRepository;
 import rkd.com.repository.OptionRepository;
 
 import java.util.List;
@@ -24,12 +26,14 @@ import static rkd.com.message.OptionMessage.OPTION_NOT_FOUND;
 class OptionServiceTest {
 
     private OptionRepository optionRepository;
+    private AttributeRepository attributeRepository;
     private OptionService optionService;
 
     @BeforeEach
     void setUp() {
         optionRepository = mock(OptionRepository.class);
-        optionService = new OptionService(optionRepository);
+        attributeRepository = mock(AttributeRepository.class);
+        optionService = new OptionService(optionRepository, attributeRepository);
     }
 
     @Test
@@ -67,6 +71,11 @@ class OptionServiceTest {
     void shouldCreateOptionWithActiveStatus() {
         OptionModel option = new OptionModel();
         option.setValues(validValues());
+        AttributeModel attribute = new AttributeModel();
+        attribute.setId(10L);
+        attribute.setType(rkd.com.type.AttributeType.OPTION);
+        option.setAttribute(attribute);
+        when(attributeRepository.findById(10L)).thenReturn(attribute);
 
         OptionModel result = optionService.create(option);
 
@@ -135,10 +144,12 @@ class OptionServiceTest {
 
     @Test
     void shouldDeleteOption() {
-        when(optionRepository.deleteById(1L)).thenReturn(true);
+        OptionModel option = new OptionModel();
+        when(optionRepository.findById(1L)).thenReturn(option);
 
         assertEquals(true, optionService.delete(1L));
-        verify(optionRepository).deleteById(1L);
+        verify(optionRepository).findById(1L);
+        verify(optionRepository).delete(option);
     }
 
     private ObjectNode validValues() {

@@ -5,8 +5,14 @@ import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rkd.com.repository.OptionRepository;
+import rkd.com.repository.AttributeRepository;
+import rkd.com.repository.DomainRepository;
+import rkd.com.model.AttributeModel;
+import rkd.com.model.DomainModel;
+import rkd.com.type.AttributeType;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,14 +23,46 @@ import static org.hamcrest.Matchers.is;
 class OptionResourceTest {
 
     private static final String CODE = "TEST_OPTION";
+    private static final String DOMAIN_CODE = "TEST_OPTION_DOMAIN";
+    private static final String ATTRIBUTE_CODE = "TEST_OPTION_ATTRIBUTE";
 
     @Inject
     OptionRepository optionRepository;
+
+    @Inject
+    AttributeRepository attributeRepository;
+
+    @Inject
+    DomainRepository domainRepository;
+
+    private Long attributeId;
+
+    @BeforeEach
+    @Transactional
+    void createOptionAttributeReference() {
+        DomainModel domain = new DomainModel();
+        domain.setCode(DOMAIN_CODE);
+        domain.setDescription("Option test domain");
+        domain.setStatus(true);
+        domainRepository.persistAndFlush(domain);
+
+        AttributeModel attribute = new AttributeModel();
+        attribute.setCode(ATTRIBUTE_CODE);
+        attribute.setDescription("Option test attribute");
+        attribute.setType(AttributeType.OPTION);
+        attribute.setMandatory(true);
+        attribute.setStatus(true);
+        attribute.setDomain(domain);
+        attributeRepository.persistAndFlush(attribute);
+        attributeId = attribute.getId();
+    }
 
     @AfterEach
     @Transactional
     void cleanDatabase() {
         optionRepository.delete("code", CODE);
+        attributeRepository.delete("code", ATTRIBUTE_CODE);
+        domainRepository.delete("code", DOMAIN_CODE);
     }
 
     @Test
@@ -33,8 +71,8 @@ class OptionResourceTest {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body("""
-                        {"code":"%s","description":"Option list","values":{"options":["A","B"]}}
-                        """.formatted(CODE))
+                        {"code":"%s","description":"Option list","attributeId":%d,"values":{"options":["A","B"]}}
+                        """.formatted(CODE, attributeId))
                 .when()
                 .post("/option")
                 .then()

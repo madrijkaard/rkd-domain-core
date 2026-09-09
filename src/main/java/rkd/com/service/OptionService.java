@@ -8,6 +8,8 @@ import rkd.com.exception.InvalidDataException;
 import rkd.com.message.OptionMessage;
 import rkd.com.model.OptionModel;
 import rkd.com.repository.OptionRepository;
+import rkd.com.repository.AttributeRepository;
+import rkd.com.model.AttributeModel;
 
 import java.util.List;
 
@@ -17,9 +19,11 @@ import static rkd.com.message.OptionMessage.OPTION_NOT_FOUND;
 public class OptionService {
 
     private final OptionRepository optionRepository;
+    private final AttributeRepository attributeRepository;
 
-    public OptionService(OptionRepository optionRepository) {
+    public OptionService(OptionRepository optionRepository, AttributeRepository attributeRepository) {
         this.optionRepository = optionRepository;
+        this.attributeRepository = attributeRepository;
     }
 
     public List<OptionModel> findAll() {
@@ -41,8 +45,12 @@ public class OptionService {
     @Transactional
     public OptionModel create(OptionModel option) {
         validateValues(option.getValues());
+        option.setAttribute(resolveAttribute(option.getAttribute()));
         option.setStatus(true);
         optionRepository.persist(option);
+        if (option.getAttribute() != null) {
+            option.getAttribute().setOption(option);
+        }
         return option;
     }
 
@@ -55,13 +63,27 @@ public class OptionService {
         option.setCode(input.getCode());
         option.setDescription(input.getDescription());
         option.setValues(input.getValues());
-        option.setStatus(input.getStatus());
+        option.setStatus(input.getStatus() == null ? option.getStatus() : input.getStatus());
+        if (input.getAttribute() != null && input.getAttribute().getId() != null) {
+            option.setAttribute(resolveAttribute(input.getAttribute()));
+        }
+        if (option.getAttribute() != null) {
+            option.getAttribute().setOption(option);
+        }
         return option;
     }
 
     @Transactional
     public boolean delete(Long id) {
-        return optionRepository.deleteById(id);
+        OptionModel option = optionRepository.findById(id);
+        if (option == null) {
+            return false;
+        }
+        if (option.getAttribute() != null) {
+            option.getAttribute().setOption(null);
+        }
+        optionRepository.delete(option);
+        return true;
     }
 
     private void validateValues(JsonNode values) {
@@ -72,5 +94,19 @@ public class OptionService {
                 || values.get("options").size() < 2) {
             throw new InvalidDataException(OptionMessage.INVALID_OPTION);
         }
+    }
+
+    private AttributeModel resolveAttribute(AttributeModel attribute) {
+        if (attribute == null || attribute.getId() == null) {
+            throw new InvalidDataException("An option must be linked to an attribute.");
+        }
+        AttributeModel existing = attributeRepository.findById(attribute.getId());
+        if (existing == null) {
+            throw new DomainNotFoundException("Attribute not found.");
+        }
+        if (existing.getType() != rkd.com.type.AttributeType.OPTION) {
+            throw new InvalidDataException("Only OPTION attributes can have an option list.");
+        }
+        return existing;
     }
 }

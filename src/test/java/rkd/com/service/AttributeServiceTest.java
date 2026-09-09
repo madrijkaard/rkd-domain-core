@@ -73,30 +73,25 @@ class AttributeServiceTest {
     }
 
     @Test
-    void shouldCreateAttributeWithDomainAndOption() {
+    void shouldCreateOptionAttributeWithoutOption() {
         AttributeModel input = new AttributeModel();
         DomainModel domainReference = new DomainModel();
         domainReference.setId(10L);
-        OptionModel optionReference = new OptionModel();
-        optionReference.setId(20L);
         input.setType(AttributeType.OPTION);
         input.setDomain(domainReference);
-        input.setOption(optionReference);
 
         DomainModel existingDomain = new DomainModel();
-        OptionModel existingOption = new OptionModel();
         when(domainRepository.findById(10L)).thenReturn(existingDomain);
-        when(optionRepository.findById(20L)).thenReturn(existingOption);
 
         AttributeModel result = attributeService.create(input);
 
         assertSame(input, result);
         assertEquals(Boolean.TRUE, input.getStatus());
         assertSame(existingDomain, input.getDomain());
-        assertSame(existingOption, input.getOption());
+        assertNull(input.getOption());
         verify(attributeRepository).persist(input);
         verify(domainRepository).findById(10L);
-        verify(optionRepository).findById(20L);
+        verifyNoInteractions(optionRepository);
     }
 
     @Test

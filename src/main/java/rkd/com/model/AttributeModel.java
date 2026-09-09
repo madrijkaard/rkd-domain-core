@@ -7,7 +7,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import rkd.com.type.AttributeType;
 
@@ -27,8 +26,7 @@ public class AttributeModel extends EntityModel {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private DomainModel domain;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "option_id")
+    @jakarta.persistence.OneToOne(mappedBy = "attribute", fetch = FetchType.EAGER)
     private OptionModel option;
 
     public AttributeType getType() {

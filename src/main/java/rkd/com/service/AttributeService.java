@@ -6,7 +6,6 @@ import rkd.com.exception.DomainNotFoundException;
 import rkd.com.exception.InvalidActionException;
 import rkd.com.model.AttributeModel;
 import rkd.com.model.DomainModel;
-import rkd.com.model.OptionModel;
 import rkd.com.repository.AttributeRepository;
 import rkd.com.repository.DomainRepository;
 import rkd.com.repository.OptionRepository;
@@ -51,7 +50,7 @@ public class AttributeService {
     public AttributeModel create(AttributeModel attribute) {
         attribute.setStatus(true);
         attribute.setDomain(resolveDomain(attribute.getDomain()));
-        attribute.setOption(resolveOption(attribute));
+        attribute.setOption(null);
         attributeRepository.persist(attribute);
         return attribute;
     }
@@ -66,7 +65,6 @@ public class AttributeService {
         attribute.setMandatory(input.getMandatory());
         attribute.setStatus(input.getStatus());
         attribute.setDomain(resolveDomain(input.getDomain()));
-        attribute.setOption(resolveOption(input));
         return attribute;
     }
 
@@ -91,19 +89,4 @@ public class AttributeService {
         return existingDomain;
     }
 
-    private OptionModel resolveOption(AttributeModel attribute) {
-        if (attribute.getType() != AttributeType.OPTION) {
-            return null;
-        }
-
-        if (attribute.getOption() == null || attribute.getOption().getId() == null) {
-            throw new InvalidActionException(INVALID_OPTION_ATTRIBUTE);
-        }
-
-        OptionModel option = optionRepository.findById(attribute.getOption().getId());
-        if (option == null) {
-            throw new DomainNotFoundException(OPTION_NOT_FOUND);
-        }
-        return option;
-    }
 }
