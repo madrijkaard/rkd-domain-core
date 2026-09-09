@@ -33,8 +33,8 @@ public class DomainResource {
 
     @GET
     @Transactional
-    public Response findAll(@QueryParam("status") Boolean status) {
-        return Response.ok(domainService.findAll(status).stream().map(domainMapper::toResponse).toList()).build();
+    public Response findAll(@QueryParam("status") Boolean status, @QueryParam("projectId") Long projectId) {
+        return Response.ok(domainService.findAll(status, projectId).stream().map(domainMapper::toResponse).toList()).build();
     }
 
     @GET

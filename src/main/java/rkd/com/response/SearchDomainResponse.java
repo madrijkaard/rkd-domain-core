@@ -10,6 +10,7 @@ public class SearchDomainResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Boolean status;
+    private Long projectId;
     private List<SearchAttributeResponse> attributes;
     private List<SearchSubdomainResponse> relatedDomains;
 
@@ -28,6 +29,7 @@ public class SearchDomainResponse {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public Boolean getStatus() { return status; }
+    public Long getProjectId() { return projectId; }
     public List<SearchAttributeResponse> getAttributes() { return attributes; }
     public List<SearchSubdomainResponse> getRelatedDomains() { return relatedDomains; }
     public void setId(Long id) { this.id = id; }
@@ -36,6 +38,7 @@ public class SearchDomainResponse {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public void setStatus(Boolean status) { this.status = status; }
+    public void setProjectId(Long projectId) { this.projectId = projectId; }
     public void setAttributes(List<SearchAttributeResponse> attributes) { this.attributes = attributes; }
     public void setRelatedDomains(List<SearchSubdomainResponse> relatedDomains) { this.relatedDomains = relatedDomains; }
 }

@@ -9,6 +9,10 @@ import jakarta.persistence.PersistenceContext;
 @ApplicationScoped
 public class DomainRepository implements PanacheRepository<DomainModel> {
 
+    public long countByProject(Long projectId) {
+        return count("project.id", projectId);
+    }
+
     @PersistenceContext
     EntityManager entityManager;
 

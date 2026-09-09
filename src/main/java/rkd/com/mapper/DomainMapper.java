@@ -14,13 +14,16 @@ public interface DomainMapper {
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "relatedDomains", source = "relatedDomainIds")
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "project.id", source = "projectId")
     DomainModel toModel(CreateDomainRequest request);
 
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "relatedDomains", source = "relatedDomainIds")
+    @Mapping(target = "project.id", source = "projectId")
     DomainModel toModel(UpdateDomainRequest request);
 
     @Mapping(target = "relatedDomains", source = "relatedDomains")
+    @Mapping(target = "projectId", source = "project.id")
     SearchDomainResponse toResponse(DomainModel model);
 
     SearchSubdomainResponse toSubdomainResponse(DomainModel model);

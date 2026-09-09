@@ -7,6 +7,10 @@ import rkd.com.exception.InvalidActionException;
 import rkd.com.model.DomainModel;
 import rkd.com.repository.DomainRepository;
 import rkd.com.repository.AttributeRepository;
+import rkd.com.repository.ProjectRepository;
+import rkd.com.model.ProjectModel;
+import rkd.com.exception.ProjectNotFoundException;
+import static rkd.com.message.ProjectMessage.PROJECT_NOT_FOUND;
 
 import java.util.List;
 
@@ -17,10 +21,17 @@ public class DomainService {
 
     private final DomainRepository domainRepository;
     private final AttributeRepository attributeRepository;
+    private final ProjectRepository projectRepository;
 
-    public DomainService(DomainRepository domainRepository, AttributeRepository attributeRepository) {
+    @jakarta.inject.Inject
+    public DomainService(DomainRepository domainRepository, AttributeRepository attributeRepository, ProjectRepository projectRepository) {
         this.domainRepository = domainRepository;
         this.attributeRepository = attributeRepository;
+        this.projectRepository = projectRepository;
+    }
+
+    public DomainService(DomainRepository domainRepository, AttributeRepository attributeRepository) {
+        this(domainRepository, attributeRepository, null);
     }
 
     public List<DomainModel> findAll() {
@@ -29,6 +40,12 @@ public class DomainService {
 
     public List<DomainModel> findAll(Boolean status) {
         return status == null ? findAll() : domainRepository.list("status", status);
+    }
+
+    public List<DomainModel> findAll(Boolean status, Long projectId) {
+        if (projectId == null) return findAll(status);
+        if (status == null) return domainRepository.list("project.id", projectId);
+        return domainRepository.list("project.id = ?1 and status = ?2", projectId, status);
     }
 
     public DomainModel findById(Long id) {
@@ -41,6 +58,7 @@ public class DomainService {
 
     @Transactional
     public DomainModel create(DomainModel domain) {
+        resolveProject(domain);
         domain.setRelatedDomains(resolveRelatedDomains(domain.getRelatedDomains(), null));
         domain.setStatus(true);
         domainRepository.persist(domain);
@@ -54,8 +72,17 @@ public class DomainService {
         domain.setCode(input.getCode());
         domain.setDescription(input.getDescription());
         domain.setStatus(input.getStatus());
+        resolveProject(input);
+        domain.setProject(input.getProject());
         domain.setRelatedDomains(resolveRelatedDomains(input.getRelatedDomains(), id));
         return domain;
+    }
+
+    private void resolveProject(DomainModel domain) {
+        if (domain.getProject() == null || domain.getProject().getId() == null || projectRepository == null) return;
+        ProjectModel project = projectRepository.findById(domain.getProject().getId());
+        if (project == null) throw new ProjectNotFoundException(PROJECT_NOT_FOUND);
+        domain.setProject(project);
     }
 
     private List<DomainModel> resolveRelatedDomains(List<DomainModel> relatedDomains, Long currentId) {
