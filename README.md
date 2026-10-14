@@ -1,309 +1,113 @@
-# RKD Domain Core
+# 🧩 RKD Domain Core
 
 <p align="center">
-  A REST API for managing business domains, hierarchical subdomains, configurable attributes, and reusable option lists.
+  <img src="https://img.shields.io/badge/language-Java%2025-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 25">
+  <img src="https://img.shields.io/badge/platform-Quarkus%203.39.2-4695EB?style=for-the-badge&logo=quarkus&logoColor=white" alt="Quarkus 3.39.2">
+  <img src="https://img.shields.io/badge/library-Hibernate%20ORM%20Panache-59666C?style=for-the-badge&logo=hibernate&logoColor=white" alt="Hibernate ORM with Panache">
+  <img src="https://img.shields.io/badge/library-Jackson-555555?style=for-the-badge" alt="Jackson">
+  <img src="https://img.shields.io/badge/library-MapStruct%201.6.3-555555?style=for-the-badge" alt="MapStruct 1.6.3">
+  <img src="https://img.shields.io/badge/database-PostgreSQL%2016-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL 16">
+  <img src="https://img.shields.io/badge/tool-Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white" alt="Maven">
+  <img src="https://img.shields.io/badge/tool-Docker%20Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose">
+  <img src="https://img.shields.io/badge/test-JUnit%205-25A162?style=for-the-badge&logo=junit5&logoColor=white" alt="JUnit 5">
+  <img src="https://img.shields.io/badge/test-REST%20Assured-555555?style=for-the-badge" alt="REST Assured">
+  <img src="https://img.shields.io/badge/test-Mockito-78A641?style=for-the-badge" alt="Mockito">
 </p>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 25">
-  <img src="https://img.shields.io/badge/Quarkus-3.39.2-4695EB?style=for-the-badge&logo=quarkus&logoColor=white" alt="Quarkus 3.39.2">
-  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL 16">
-  <img src="https://img.shields.io/badge/Maven-3.9+-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white" alt="Maven">
-</p>
+## 📖 About the project
 
-<p align="center">
-  <img src="https://img.shields.io/badge/tests-27%20passing-2EA44F?style=for-the-badge" alt="27 tests passing">
-  <img src="https://img.shields.io/badge/API-REST-6E56CF?style=for-the-badge" alt="REST API">
-  <img src="https://img.shields.io/badge/database-JSONB-336791?style=for-the-badge" alt="JSONB database">
-</p>
+RKD Domain Core is a Quarkus REST API for managing **projects**, business **domains** (which can reference related domains and belong to a project), configurable **attributes** of a domain (typed as `NUMBER`, `DECIMAL`, `TEXT`, `DATE`, `DATE_TIME`, `MONEY`, `OPTION` or `JSON`) and reusable **option** lists stored in PostgreSQL as `jsonb`.
 
-## ✨ About the project
+The code follows a layered structure: REST resources, services, Panache repositories, JPA entities, request/response DTOs and MapStruct mappers. The `load` folder contains helper scripts to generate and load seed data.
 
-RKD Domain Core is the central data-definition service for the RKD platform.
+## 🛠️ Technologies used
 
-It provides a REST API for defining business domains and their configurable attributes. Domains can be organized in a parent–child hierarchy, while `OPTION` attributes can reference reusable option lists stored as PostgreSQL `JSONB` documents.
-
-The service is built with Quarkus and follows a layered architecture with REST resources, application services, Panache repositories, JPA entities, DTOs, and MapStruct mappers.
-
-## 📚 Table of contents
-
-- [Technologies](#-technologies)
-- [Features](#-features)
-- [Project structure](#-project-structure)
-- [Getting started](#-getting-started)
-- [API overview](#-api-overview)
-- [Error responses](#-error-responses)
-- [License](#-license)
-
-## 🛠 Technologies
-
-| Technology | Purpose |
+| Technology | What it is used for |
 | --- | --- |
-| [Java 25](https://openjdk.org/) | Application runtime and language |
-| [Quarkus](https://quarkus.io/) | Supersonic Subatomic Java framework |
-| [Jakarta REST](https://jakarta.ee/specifications/restful-ws/) | REST endpoint implementation |
-| [Hibernate ORM with Panache](https://quarkus.io/guides/hibernate-orm-panache) | Persistence and repository abstraction |
-| [PostgreSQL](https://www.postgresql.org/) | Relational database |
-| [Jackson](https://github.com/FasterXML/jackson) | JSON serialization and deserialization |
-| [MapStruct](https://mapstruct.org/) | Compile-time DTO and entity mapping |
-| [Maven](https://maven.apache.org/) | Build and dependency management |
-| [JUnit 5](https://junit.org/junit5/) | Unit testing framework |
-| [Mockito](https://site.mockito.org/) | Service-level test isolation |
-| [REST Assured](https://rest-assured.io/) | REST integration testing |
-| [Docker Compose](https://docs.docker.com/compose/) | Local PostgreSQL environment |
+| Java 25 | Language and runtime of the application (`maven.compiler.release` 25). |
+| Quarkus 3.39.2 (`quarkus-rest`, `quarkus-arc`) | Application framework: REST endpoints (`/project`, `/domain`, `/attribute`, `/option`), CDI and CORS configuration. |
+| Jackson (`quarkus-rest-jackson`) | JSON serialization of requests and responses, and of the `jsonb` option values. |
+| Hibernate ORM with Panache | Persistence of the entities and repositories; the schema is created/updated automatically (`schema-management.strategy=update`). |
+| PostgreSQL 16 (`quarkus-jdbc-postgresql`) | Database of the application, run through `docker-compose.yml`. |
+| MapStruct 1.6.3 | Compile-time mapping between requests/responses and entities. |
+| Maven (Maven Wrapper `mvnw`) | Build, dependency management and test execution. |
+| Docker Compose | Starts the local PostgreSQL container and is used by `load/run-load.sh`. |
+| JUnit 5, REST Assured, Mockito | Unit tests of the services and `@QuarkusTest` integration tests of the resources against PostgreSQL. |
+| Node.js | Runs `load/generate-load.mjs`, which generates `load/domain_load.sql` from migrations in `../sinan-core`. |
 
-## 🚀 Features
+## 🗺️ Mapped features
 
-### Domain management
+Status based on a real run of `./mvnw test` (31 tests: 30 passed, 1 failed).
 
-- Create root domains or child domains.
-- Assign a parent domain using `parentDomainId`.
-- Prevent missing parents, self-references, and cyclic hierarchies.
-- List domains and filter them by active status.
-- Update domain code, description, status, and parent.
-- Prevent deleting domains that still have subdomains.
-- Return subdomains as shallow summaries to avoid recursive JSON responses.
+| Feature | What it does | Status |
+| --- | --- | --- |
+| Project management (`/project`) | List (optionally filtered by `status`), find by id, create, update and delete projects. | PARTIAL |
+| Domain management (`/domain`) | List, find by id, create, update and delete domains, linking related domains and an optional project. | PARTIAL |
+| Attribute management (`/attribute`) | List, find by id, create, update and delete typed attributes of a domain. | COMPLETE |
+| Option management (`/option`) | List, find by id, create, update and delete reusable option lists stored as `jsonb`. | COMPLETE |
+| Error responses | Maps `DomainNotFoundException`, `InvalidDataException` and `InvalidActionException` to JSON error responses. | PARTIAL |
+| Seed data load (`load/`) | `run-load.sh` recreates the database and loads `domain_load.sql`; `generate-load.mjs` regenerates that SQL. | PARTIAL |
 
-### Attribute management
+## 🚀 How to run the project
 
-- Create attributes linked to a domain.
-- Support the following attribute types:
+### Requirements
 
-  `NUMBER`, `DECIMAL`, `TEXT`, `DATE`, `DATE_TIME`, `MONEY`, `OPTION`, and `JSON`.
+- JDK 25 (`JAVA_HOME` pointing to it). Maven itself is not required: the project ships the Maven Wrapper (`mvnw`).
+- Docker with Docker Compose, to run PostgreSQL 16 (or any reachable PostgreSQL instance).
+- Node.js only if you want to regenerate `load/domain_load.sql`.
 
-- Mark attributes as mandatory or optional.
-- Associate `OPTION` attributes with previously created option lists.
-- Filter attributes by active status.
-- Update and delete attributes.
-
-### Option management
-
-- Store reusable option lists in PostgreSQL `JSONB`.
-- Require at least two option values.
-- Filter options by active status.
-- Update option values, descriptions, and status.
-- Delete option lists when they are no longer referenced.
-
-### Validation and error handling
-
-- Consistent JSON error responses.
-- Dedicated exception mappers for not-found, invalid-data, and invalid-action errors.
-- HTTP status codes mapped to domain failures.
-
-## 📁 Project structure
-
-```text
-src/
-├── main/
-│   ├── java/rkd/com/
-│   │   ├── definition/   # HTTP exception mappers
-│   │   ├── dto/          # Shared response DTOs
-│   │   ├── exception/    # Domain exceptions
-│   │   ├── mapper/       # MapStruct mappers
-│   │   ├── message/      # Standardized messages
-│   │   ├── model/        # JPA entities
-│   │   ├── repository/   # Panache repositories
-│   │   ├── request/      # Request payloads
-│   │   ├── resource/     # REST resources
-│   │   ├── response/     # Response payloads
-│   │   ├── service/      # Business rules
-│   │   └── type/         # Enumerations
-│   └── resources/
-│       └── application.properties
-├── test/
-│   ├── java/rkd/com/
-│   │   ├── resource/     # REST Assured integration tests
-│   │   └── service/      # Unit tests
-│   └── resources/
-│       └── application.properties
-├── docker-compose.yml    # Local PostgreSQL service
-├── pom.xml               # Maven configuration
-└── README.md             # Project documentation
-```
-
-### Domain relationship model
-
-```text
-Domain
-├── parent              # optional parent domain
-├── subdomains[]        # child domains
-├── attributes[]        # configurable attributes
-└── status
-
-Attribute
-└── option              # used when type = OPTION
-```
-
-## 🧭 Getting started
-
-### Prerequisites
-
-- [Java 25](https://openjdk.org/) installed;
-- [Maven 3.9+](https://maven.apache.org/) installed;
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) with Docker Compose;
-- PostgreSQL, if you are not using the provided Compose setup.
-
-### Start PostgreSQL
-
-From the project root, start the database:
+### 1. Start the database
 
 ```bash
 docker compose up -d
 ```
 
-The Compose configuration creates:
+This starts `postgres:16-alpine` on `localhost:5432` with database `domain_core`, user `postgres` and password `postgres`.
 
-| Setting | Value |
-| --- | --- |
-| Database | `domain_core` |
-| Username | `postgres` |
-| Password | `postgres` |
-| Port | `5432` |
+### 2. Configure the connection (optional)
 
-Check the container status:
+The defaults in `src/main/resources/application.properties` match the container above. To use another database, set these environment variables instead of editing the file:
 
 ```bash
-docker compose ps
+export DB_URL=jdbc:postgresql://localhost:5432/domain_core
+export DB_USERNAME=postgres
+export DB_PASSWORD=postgres
 ```
 
-Stop the database when needed:
+The schema is created/updated by Hibernate on startup. CORS only allows `http://localhost:4200`; edit `quarkus.http.cors.origins` if your frontend runs on another origin.
+
+### 3. Run the application
 
 ```bash
-docker compose down
+./mvnw quarkus:dev
 ```
 
-### Environment variables
+The API is available at `http://localhost:8080`.
 
-The default values work with the provided `docker-compose.yml`. They can be overridden when starting the application:
+### 4. Run the tests
 
-| Variable | Default | Description |
-| --- | --- | --- |
-| `DB_USERNAME` | `postgres` | PostgreSQL username |
-| `DB_PASSWORD` | `postgres` | PostgreSQL password |
-| `DB_URL` | `jdbc:postgresql://localhost:5432/domain_core` | JDBC connection URL |
-| `QUARKUS_HIBERNATE_ORM_LOG_SQL` | `false` | Enable Hibernate SQL logging |
-
-### Run in development mode
+The `@QuarkusTest` tests need the PostgreSQL database configured above to be running.
 
 ```bash
-mvn quarkus:dev
+./mvnw test
 ```
 
-The API will be available at:
+### 5. Load seed data (optional, destructive)
 
-```text
-http://localhost:8080
-```
-
-The Quarkus Dev UI will be available at:
-
-```text
-http://localhost:8080/q/dev/
-```
-
-### Run the tests
-
-Make sure PostgreSQL is running, then execute:
+> ⚠️ `run-load.sh` runs `docker compose down --volumes`, permanently deleting all data in the project database, then loads `load/domain_load.sql`.
 
 ```bash
-mvn test
+bash load/run-load.sh
 ```
 
-Run the complete Maven verification lifecycle:
+To regenerate the SQL (requires the sibling repository `../sinan-core`):
 
 ```bash
-mvn verify
+node load/generate-load.mjs [migrationsDir] [outputFile]
 ```
 
-The integration tests validate request headers, path parameters, query parameters, CRUD operations, and persistence against PostgreSQL.
-
-### Build and run the application
-
-Create the JVM package:
+### Build
 
 ```bash
-mvn package
+./mvnw package
 ```
-
-Run the generated application:
-
-```bash
-java -jar target/quarkus-app/quarkus-run.jar
-```
-
-### Build a native executable
-
-With GraalVM configured:
-
-```bash
-mvn package -Dnative
-```
-
-Without a local GraalVM installation:
-
-```bash
-mvn package -Dnative -Dquarkus.native.container-build=true
-```
-
-## 🔌 API overview
-
-| Resource | Base path | Main operations |
-| --- | --- | --- |
-| Domains | `/domain` | Create, list, filter, update, delete |
-| Attributes | `/attribute` | Create, list, filter, update, delete |
-| Options | `/option` | Create, list, filter, update, delete |
-
-### Example: create a root domain
-
-```http
-POST /domain
-Content-Type: application/json
-Accept: application/json
-```
-
-```json
-{
-  "code": "CUSTOMER",
-  "description": "Customer domain"
-}
-```
-
-### Example: create a subdomain
-
-```json
-{
-  "code": "CUSTOMER_ADDRESS",
-  "description": "Customer address",
-  "parentDomainId": 1
-}
-```
-
-### Example: filter active resources
-
-```http
-GET /domain?status=true
-GET /attribute?status=true
-GET /option?status=true
-```
-
-## ⚠️ Error responses
-
-Errors follow a consistent structure:
-
-```json
-{
-  "message": "Parent domain not found.",
-  "type": "DOMAIN_NOT_FOUND",
-  "timestamp": "2026-09-07T15:00:00"
-}
-```
-
-Available error types include:
-
-- `DOMAIN_NOT_FOUND`
-- `INVALID_DATA`
-- `INVALID_ACTION`
-
-## 📄 License
-
-This project is distributed under the terms described in [LICENSE](LICENSE).
